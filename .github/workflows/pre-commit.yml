@@ -96,12 +96,13 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ matrix.version }}
-      - name: Install Checkov
-        id: checkov
-        uses: bridgecrewio/checkov-action@master
+#      - name: Install Checkov
+#        id: checkov
+#        uses: bridgecrewio/checkov-action@master
       - name: Install pre-commit dependencies
         run: |
           pip install pre-commit
+          pip install checkov
           curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-v0.12.1-linux-amd64" | head -n1)" > terraform-docs && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
           curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
       - name: Execute pre-commit
