@@ -41,9 +41,6 @@ jobs:
         uses: clowdhaus/terraform-min-max@v1.0.1
         with:
           directory: ${{ matrix.directory }}
-      - name: Checkov Scan
-        id: checkov
-        uses: bridgecrewio/checkov-action@master
 #        with:
 #          directory: "."
 #          framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
@@ -77,6 +74,9 @@ jobs:
       - name: Terraform min/max versions
         id: minMax
         uses: clowdhaus/terraform-min-max@v1.0.1
+      - name: Install Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
     outputs:
       minVersion: ${{ steps.minMax.outputs.minVersion }}
       maxVersion: ${{ steps.minMax.outputs.maxVersion }}
