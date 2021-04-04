@@ -1,6 +1,6 @@
 <p align="center">
-    <a href="https://github.com/tomarv2/terraform-aws-acm/actions/workflows/security_scans.yml" alt="Security Scans">
-        <img src="https://github.com/tomarv2/terraform-aws-acm/actions/workflows/security_scans.yml/badge.svg?branch=main" /></a>
+    <a href="https://github.com/tomarv2/terraform-aws-acm/actions/workflows/pre-commit.yml" alt="Precommit">
+        <img src="https://github.com/tomarv2/terraform-aws-acm/actions/workflows/pre-commit.yml/badge.svg?branch=main" /></a>
     <a href="https://www.apache.org/licenses/LICENSE-2.0" alt="license">
         <img src="https://img.shields.io/github/license/tomarv2/terraform-aws-acm" /></a>
     <a href="https://github.com/tomarv2/terraform-aws-acm/tags" alt="GitHub tag">
@@ -25,7 +25,7 @@
 - `tags` releases: Tags are pinned with versions (use <a href="https://github.com/tomarv2/terraform-aws-acm/tags" alt="GitHub tag">
         <img src="https://img.shields.io/github/v/tag/tomarv2/terraform-aws-acm" /></a> in your releases).
 
-**NOTE:** 
+**NOTE:**
 
 - Read more on [tfremote](https://github.com/tomarv2/tfremote)
 
@@ -33,7 +33,7 @@
 
 Recommended method:
 
-- Create python 3.6+ virtual environment. 
+- Create python 3.6+ virtual environment.
 ```
 python3 -m venv <venv name>
 ```
@@ -48,7 +48,7 @@ pip install tfremote --upgrade
 export TF_AWS_BUCKET=<remote state bucket name>
 export TF_AWS_PROFILE=default
 export TF_AWS_BUCKET_REGION=us-west-2
-```  
+```
 
 - Updated `examples` directory with required values.
 
