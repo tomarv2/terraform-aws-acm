@@ -4,18 +4,11 @@ repos:
     hooks:
       - id: checkov
         args:
-          - '--directory "."'
+          - '--directory .'
           - '--framework terraform'
           - '--output_format json'
-#        uses: bridgecrewio/checkov-action@master
-#        with:
-#          directory: "."
-#          framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
-#          output_format: json # optional: the output format, one of: cli, json, junitxml, github_failed_only
       - id: terraform_fmt
       - id: terraform_validate
-      - id: terraform_docs
-      - id: terraform_tflint
         args:
           - '--args=--only=terraform_deprecated_interpolation'
           - '--args=--only=terraform_deprecated_index'
@@ -26,7 +19,6 @@ repos:
           - '--args=--only=terraform_typed_variables'
           - '--args=--only=terraform_module_pinned_source'
           - '--args=--only=terraform_naming_convention'
-          - '--args=--only=terraform_required_version'
           - '--args=--only=terraform_required_providers'
           - '--args=--only=terraform_standard_module_structure'
           - '--args=--only=terraform_workspace_remote'
