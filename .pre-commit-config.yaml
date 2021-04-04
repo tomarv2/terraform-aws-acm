@@ -4,9 +4,9 @@ repos:
     hooks:
       - id: checkov
         args:
-          - '--args=--directory="."'
-          - '--args=--framework=terraform'
-          - '--args=--output_format=json'
+          - '--directory "."'
+          - '--framework terraform'
+          - '--output_format json'
 #        uses: bridgecrewio/checkov-action@master
 #        with:
 #          directory: "."
