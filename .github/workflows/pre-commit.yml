@@ -1,104 +1,102 @@
-name: Pre-Commit
+# This configuration file allows our pre-commit hooks to be used with pre-commit: http://pre-commit.com/
 
-on:
-  pull_request:
-  push:
-    branches:
-      - main
+- id: terraform-fmt
+  name: Terraform fmt
+  description: Rewrites all Terraform configuration files to a canonical format
+  entry: hooks/terraform-fmt.sh
+  language: script
+  files: \.tf$
+  exclude: \.+.terraform\/.*$
+  require_serial: true
 
-jobs:
-# Min Terraform version(s)
-  getDirectories:
-    name: Get root directories
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Python
-        uses: actions/setup-python@v2
-      - name: Build matrix
-        id: matrix
-        run: |
-          DIRS=$(python -c "import json; import glob; print(json.dumps([x.replace('/versions.tf', '') for x in glob.glob('./**/versions.tf', recursive=True)]))")
-          echo "::set-output name=directories::$DIRS"
-    outputs:
-      directories: ${{ steps.matrix.outputs.directories }}
+- id: terraform-validate
+  name: Terraform validate
+  description: Validates all Terraform configuration files
+  entry: hooks/terraform-validate.sh
+  language: script
+  files: \.tf$
+  exclude: \.+.terraform\/.*$
+  require_serial: true
 
-  preCommitMinVersions:
-    name: Min TF validate
-    needs: getDirectories
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        directory: ${{ fromJson(needs.getDirectories.outputs.directories) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Python
-        uses: actions/setup-python@v2
-      - name: Terraform min/max versions
-        id: minMax
-        uses: clowdhaus/terraform-min-max@v1.0.1
-        with:
-          directory: ${{ matrix.directory }}
+- id: tflint
+  name: tflint
+  description: Linter for Terraform source code
+  entry: hooks/tflint.sh
+  language: script
+  files: \.tf$
+  exclude: \.+.terraform\/.*$
 
-      - name: Install Terraform v${{ steps.minMax.outputs.minVersion }}
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: ${{ steps.minMax.outputs.minVersion }}
-      - name: Install pre-commit dependencies
-        run: pip install pre-commit
-      - name: Execute pre-commit
-        # Run only validate pre-commit check on min version supported
-        if: ${{ matrix.directory !=  '.' }}
-        run:
-          pre-commit run terraform_validate --color=always --show-diff-on-failure --files ${{ matrix.directory }}/*
-      - name: Execute pre-commit
-        # Run only validate pre-commit check on min version supported
-        if: ${{ matrix.directory ==  '.' }}
-        run:
-          pre-commit run terraform_validate --color=always --show-diff-on-failure --files $(ls *.tf)
+- id: terragrunt-hclfmt
+  name: Terragrunt hclfmt
+  description: Rewrites all Terragrunt configuration files to a canonical format
+  entry: hooks/terragrunt-hclfmt.sh
+  language: script
+  files: \.hcl$
+  exclude: >
+    (?x)^(
+      .+\.terraform\/.*$|
+      .+\.terragrunt-cache\/.*$|
+    )$
+- id: shellcheck
+  name: Shellcheck Bash Linter
+  description: Performs linting on bash scripts
+  entry: hooks/shellcheck.sh
+  language: script
 
+- id: gofmt
+  name: gofmt
+  description: Gofmt formats Go programs
+  entry: hooks/gofmt.sh
+  language: script
+  files: \.go$
+  exclude: vendor\/.*$
 
-# Max Terraform version
-  getBaseVersion:
-    name: Module max TF version
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Terraform min/max versions
-        id: minMax
-        uses: clowdhaus/terraform-min-max@v1.0.1
-    outputs:
-      minVersion: ${{ steps.minMax.outputs.minVersion }}
-      maxVersion: ${{ steps.minMax.outputs.maxVersion }}
+- id: goimports
+  name: goimports
+  description: Goimports updates imports and formats in the same style as gofmt
+  entry: hooks/goimports.sh
+  language: script
+  files: \.go$
+  exclude: vendor\/.*$
 
-  preCommitMaxVersion:
-    name: Max TF pre-commit
-    runs-on: ubuntu-latest
-    needs: getBaseVersion
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - ${{ needs.getBaseVersion.outputs.maxVersion }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Python
-        uses: actions/setup-python@v2
-      - name: Install Terraform v${{ matrix.version }}
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: ${{ matrix.version }}
-      - name: Install pre-commit dependencies
-        run: |
-          pip install pre-commit
-          pip install checkov
-          #curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E "https://.+?-v0.12.1-linux-amd64" | head -n1)" > terraform-docs && chmod +x terraform-docs && sudo mv terraform-docs /usr/bin/
-          curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip && sudo mv tflint /usr/bin/
-      - name: Execute pre-commit
-        # Run all pre-commit checks on max version supported
-        if: ${{ matrix.version ==  needs.getBaseVersion.outputs.maxVersion }}
-        run: pre-commit run --color=always --show-diff-on-failure --all-files
+- id: golint
+  name: golint
+  description: Golint is a linter for Go source code
+  entry: hooks/golint.sh
+  language: script
+  files: \.go$
+  exclude: vendor\/.*$
+
+- id: yapf
+  name: yapf
+  description: yapf (Yet Another Python Formatter) is a python formatter from Google
+  entry: hooks/yapf.sh
+  language: script
+  files: \.py$
+  exclude: >
+    (?x)^(
+      \.tox\/.*$|
+      __pycache__\/.*$
+    )$
+- id: helmlint
+  name: helmlint
+  description: Run helm lint, a linter for helm charts
+  entry: hooks/helmlint.sh
+  language: script
+  files: \.((ya?ml)|(tpl))$
+  require_serial: true
+
+- id: markdown-link-check
+  name: markdown-link-check
+  description: Run markdown-link-check to check all the relative and absolute links in markdown docs.
+  entry: hooks/mdlink-check.sh
+  language: script
+  files: \.md$
+  exclude: vendor\/.*$
+
+- id: check-terratest-skip-env
+  name: check-terratest-skip-env
+  description: Check all go source files for any uncommented os.Setenv calls setting a terratest SKIP environment.
+  entry: ./hooks/check_skip_env.py
+  language: script
+  files: \.go$
