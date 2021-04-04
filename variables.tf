@@ -69,11 +69,11 @@ variable "zone_id" {
   default     = ""
 }
 
-variable "tags" {
-  description = "A mapping of tags to assign to the resource"
-  type        = map(string)
-  default     = {}
-}
+//variable "tags" {
+//  description = "A mapping of tags to assign to the resource"
+//  type        = map(string)
+//  default     = {}
+//}
 
 variable "dns_ttl" {
   description = "The TTL of DNS recursive resolvers to cache information about this record."
