@@ -17,8 +17,8 @@
 
 ## Versions
 
-- Module tested for Terraform 0.14.
-- AWS provider version [3.29.0](https://registry.terraform.io/providers/hashicorp/aws/latest).
+- Module tested for Terraform 1.0.1.
+- AWS provider version [3.63](https://registry.terraform.io/providers/hashicorp/aws/latest).
 - `main` branch: Provider versions not pinned to keep up with Terraform releases.
 - `tags` releases: Tags are pinned with versions (use <a href="https://github.com/tomarv2/terraform-aws-acm/tags" alt="GitHub tag">
         <img src="https://img.shields.io/github/v/tag/tomarv2/terraform-aws-acm" /></a> in your releases).
