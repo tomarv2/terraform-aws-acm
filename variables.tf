@@ -67,3 +67,4 @@ variable "dns_ttl" {
   type        = string
   default     = 60
 }
+
