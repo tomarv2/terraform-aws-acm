@@ -4,8 +4,8 @@ on:
   pull_request:
   push:
     branches:
-      - main
       - develop
+      - main
 
 jobs:
   getDirectories:
@@ -109,11 +109,17 @@ jobs:
         run: |
           pre-commit run --color=always --show-diff-on-failure --all-files
 
+      - name: Get current branch name
+        id: vars
+        run: |
+          echo ::set-output name=branch_name::${GITHUB_REF##*/}
+
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Render terraform docs and commit changes
+        if: ${{ steps.vars.outputs.branch_name }} == 'develop'
         uses: terraform-docs/gh-actions@main
         with:
           working-dir: .
@@ -122,8 +128,21 @@ jobs:
           git-push: "true"
 
       - name: Commit modified files
+        if: ${{ steps.vars.outputs.branch_name }} == 'develop'
         run: |
-          git pull
           git config --local user.email "terraform+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git diff-index --quiet HEAD || (git add -A && git commit -m'[bot] update files' --allow-empty && git push -f)
+
+      - name: Pull requests to main
+        if: ${{ steps.vars.outputs.branch_name }} == 'develop'
+        uses: vsoch/pull-request-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST_BRANCH: "main"
+          PULL_REQUEST_FROM_BRANCH: ${{ github.ref }}
+
+
+
+
+
