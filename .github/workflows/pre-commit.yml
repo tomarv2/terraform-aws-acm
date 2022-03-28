@@ -109,6 +109,11 @@ jobs:
         run: |
           pre-commit run --color=always --show-diff-on-failure --all-files
 
+      - name: Get current branch name
+        id: vars
+        run: |
+          echo ::set-output name=branch_name::${GITHUB_REF##*/}
+
       - name: "Get branch name and save to env"
         env:
           IS_PR: ${{ github.EVENT_NAME == 'pull_request' }}
@@ -125,7 +130,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Render terraform docs and commit changes
-        if: ${{env.BRANCH_NAME}}  == 'develop'
+        if: ${{ env.BRANCH_NAME }}  == 'develop'
         uses: terraform-docs/gh-actions@main
         with:
           working-dir: .
@@ -133,17 +138,23 @@ jobs:
           output-method: inject
           git-push: "true"
 
-      - name: Commit modified files
-        if: ${{env.BRANCH_NAME}} == 'develop'
+      - name: Commit pre-commit modified files
+        if: ${{ env.BRANCH_NAME }} == 'develop'
         run: |
           git config --local user.email "terraform+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git diff-index --quiet HEAD || (git add -A && git commit -m'[bot] update files' --allow-empty && git push -f)
 
-      - name: Pull requests to main
-        if: ${{env.BRANCH_NAME}}  == 'develop'
-        uses: vsoch/pull-request-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PULL_REQUEST_BRANCH: "main"
-          PULL_REQUEST_FROM_BRANCH: ${{ github.ref }}
+      - uses: actions/checkout@v2
+      - name: Create PR
+        continue-on-error: true
+        uses: repo-sync/pull-request@v2
+        if: ${{ env.BRANCH_NAME }}  == 'develop'
+        with:
+          source_branch: "develop"
+          destination_branch: "main"
+          pr_title: "Pulling ${{ github.ref }} into main"
+          pr_body: ":crown: *Automated PR*"
+          pr_label: "auto-pr"
+          pr_allow_empty: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
