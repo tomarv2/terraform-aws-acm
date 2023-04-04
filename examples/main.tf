@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.0.1"
   required_providers {
     aws = {
-      version = "~> 3.74"
+      version = "~> 4.61"
     }
     template = {
       version = "~> 2.2.0"
@@ -15,7 +15,7 @@ provider "aws" {
 }
 
 module "acm" {
-  source = "../../"
+  source = "../"
 
   zone_id     = "Z123456789"
   domain_name = "demo.example.com"
